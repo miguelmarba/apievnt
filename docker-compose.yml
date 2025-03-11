@@ -1,0 +1,45 @@
+version: "3.8"
+services:
+  apievnt:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    image: apievnt
+    container_name: api-evnt
+    restart: unless-stopped
+    working_dir: /var/www/apievnt
+    volumes:
+      - ./:/var/www/apievnt
+    ports:
+      - 8001:80
+    environment:
+      - DBHOST=mysql
+      - DBPORT=3302
+      - DB_USERNAME=root
+      - DB_PASSWORD=root
+      - DB_DATABASE=evnt
+    links:
+      - mysql
+    # networks:
+    #  red:
+    #    aliases:
+    #      - apievnt.localhost
+  mysql:
+    container_name: mysql
+    image: mysql:8.1.0
+    restart: unless-stopped
+    ports:
+      - 3002:3306
+    volumes:
+      - mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: evnt
+      TZ: "America/Mexico_City"
+volumes:
+    mysql:
+      driver: "local"
+# networks:
+#  red:
+#    name: red
+#    external: true
