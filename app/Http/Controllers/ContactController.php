@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\StoreContactRequest;
 use App\Http\Requests\UpdateContactRequest;
 use App\Models\Contact;
@@ -18,18 +19,30 @@ class ContactController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
+        // Validaciones
+        $rules = [
+            'first_name' => ['required'],
+            'last_name' => ['required'],
+            'address' => ['required'],
+            'phone_number' => ['required', 'digits_between:10,10'],
+            'email' => ['required', 'email'],
+        ];
+
+        $validatedData = Validator::make($request->all(), $rules);
+
+        if($validatedData->fails()){
+            $response = [
+                'success' => false,
+                'message' => 'Hay errores en los parámetros.',
+                'data' => $validatedData->messages()
+            ];
+            return response($response, 200);
+        }
+
         // Parametros
         $first_name = $request->input('first_name');
         $last_name = $request->input('last_name');
@@ -63,14 +76,6 @@ class ContactController extends Controller
      * Display the specified resource.
      */
     public function show(Contact $contact)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Contact $contact)
     {
         //
     }

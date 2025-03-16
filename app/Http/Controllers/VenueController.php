@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\StoreVenueRequest;
 use App\Http\Requests\UpdateVenueRequest;
 use App\Models\Venue;
@@ -18,18 +19,31 @@ class VenueController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
+        // Validaciones
+        $rules = [
+            'name' => ['required'],
+            'address' => ['required'],
+            'capacity' => ['required', 'numeric'],
+            'manager_id' => ['required', 'numeric'],
+            'phone_number' => ['required', 'digits_between:10,10'],
+            'email' => ['required', 'email'],
+        ];
+
+        $validatedData = Validator::make($request->all(), $rules);
+
+        if($validatedData->fails()){
+            $response = [
+                'success' => false,
+                'message' => 'Hay errores en los parámetros.',
+                'data' => $validatedData->messages()
+            ];
+            return response($response, 200);
+        }
+
         // Parametros
         $name = $request->input('name');
         $address = $request->input('address');
@@ -65,14 +79,6 @@ class VenueController extends Controller
      * Display the specified resource.
      */
     public function show(Venue $venue)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Venue $venue)
     {
         //
     }

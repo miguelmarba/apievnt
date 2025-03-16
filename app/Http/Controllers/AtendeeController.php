@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\StoreAtendeeRequest;
 use App\Http\Requests\UpdateAtendeeRequest;
 use App\Models\Atendee;
@@ -18,24 +19,35 @@ class AtendeeController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
+        // Validaciones
+        $rules = [
+            'event_id' => ['required', 'numeric'],
+            'seats' => ['required', 'numeric'],
+            'confirmation' => ['required', 'boolean'],
+            'name' => ['required'],
+        ];
+
+        $validatedData = Validator::make($request->all(), $rules);
+
+        if($validatedData->fails()){
+            $response = [
+                'success' => false,
+                'message' => 'Hay errores en los parámetros.',
+                'data' => $validatedData->messages()
+            ];
+            return response($response, 200);
+        }
+
         // Parametros
         $event_id = $request->input('event_id');
         $seats = $request->input('seats');
         $confirmation = $request->input('confirmation');
         $name = $request->input('name');
-        $is_booked = $request->input('is_booked');
+        $is_booked = $request->input('is_booked', false);
 
         $data = [
             'event_id' => $event_id,
@@ -63,14 +75,6 @@ class AtendeeController extends Controller
      * Display the specified resource.
      */
     public function show(Atendee $atendee)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Atendee $atendee)
     {
         //
     }

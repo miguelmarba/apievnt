@@ -3,21 +3,16 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Validator;
 use App\Models\Event;
 
 class EventController extends Controller
 {
     public function index(Request $request) {
         // try {
-            // die("MIKE ok 1");
             // $eventsList = (new Event)->get_events();
 
             $eventsList = Event::all();
-
-
-            // var_dump($eventsList);
-            // die("MIKE ok");
 
             // return response()->json($eventsLis, 200);
             return response()->json(['success'=>'true', 'data'=>$eventsList, 'message'=>'Resultado exitoso']);
@@ -33,6 +28,28 @@ class EventController extends Controller
      */
     public function store(Request $request)
     {
+        // Validaciones
+        $rules = [
+            'title' => ['required'],
+            'start_date' => ['required', 'date_format:Y-m-d H:i'],
+            'end_date' => ['required', 'date_format:Y-m-d H:i'],
+            'capacity' => ['required', 'numeric'],
+            'customer_id' => ['required', 'numeric'],
+            'additional_info' => ['required'],
+            'venue_id' => ['required', 'numeric'],
+        ];
+
+        $validatedData = Validator::make($request->all(), $rules);
+
+        if($validatedData->fails()){
+            $response = [
+                'success' => false,
+                'message' => 'Hay errores en los parámetros.',
+                'data' => $validatedData->messages()
+            ];
+            return response($response, 200);
+        }
+        
         // Parametros
         $title = $request->input('title');
         $start_date = $request->input('start_date');
